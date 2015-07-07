@@ -35,8 +35,15 @@ function start() {
       if (data.rows && data.rows.length === 1) {
         var url = data.rows[0].url;
         var data = /https:\/\/(.+)\.cartodb.com\/api\/v2\/viz\/(.+)\/viz.json/.exec(url);
-        callback && callback({ username: data[1], id: data[2] });
+        callback && callback({ username: data[1], id: data[2], url: url });
       }
+    });
+  }
+
+  function getMapInfo(mapData, callback) {
+    request(mapData.url, function(err, res, body){
+      var data = JSON.parse(body);
+      callback && callback(data.title);
     });
   }
 
@@ -54,7 +61,7 @@ function start() {
   }
 
   function postTweet(mapData, callback) {
-    var msg = 'Currently CartoDB top map: http://' + mapData.username + '.cartodb.com/viz/' + mapData.id + '/public_map';
+    var msg = mapData.title + ' by ' + mapData.username + ' - http://' + mapData.username + '.cartodb.com/viz/' + mapData.id + '/public_map';
     
     twitterClient.post('statuses/update', { status: msg },  function(error, tweet, response){
       callback && callback();
@@ -91,8 +98,21 @@ function start() {
     queue.push(
       function(task) {
         getVizJson(function(d) {
-          console.log("Map data: " + mapData);
           mapData = d;
+          console.log("Map data: " + JSON.stringify(mapData));
+          task.done();
+        });
+      }, 
+      function() {}, 
+      1000
+    );
+
+    // Get more map info!
+    queue.push(
+      function(task) {
+        getMapInfo(mapData, function(title) {
+          mapData.title = title;
+          console.log("Map info: " + JSON.stringify(mapData));
           task.done();
         });
       }, 
@@ -119,7 +139,7 @@ function start() {
           task.done();
         } else {
           insertMapId(mapData, function() {
-            console.log("New map stored!: " + mapData);
+            console.log("New map stored!: " + JSON.stringify(mapData));
             task.done();
           })
         }
@@ -135,7 +155,7 @@ function start() {
           task.done();
         } else {
           postTweet(mapData, function() {
-            console.log("Tweet posted!: " + mapData);
+            console.log("Tweet posted!: " + JSON.stringify(mapData));
             task.done();
           });
         }
@@ -151,13 +171,13 @@ function start() {
           task.done();
         } else {
           changeBackground(mapData, function() {
-            console.log("Banner changed!: " + mapData);
+            console.log("Banner changed!: " + JSON.stringify(mapData));
             task.done();
           });
         }
       },
       function() {},
-      6000
+      5000
     );
 
   }, null, true, 'America/Los_Angeles');
