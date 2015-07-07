@@ -78,6 +78,8 @@ function changeBackground(mapData, callback) {
 
 
 var job = new CronJob('*/20 * * * *', function() {
+  console.log("Checking new map...");
+
   var queue = seqqueue.createQueue(10000);
   var mapData = {};
 
@@ -85,6 +87,7 @@ var job = new CronJob('*/20 * * * *', function() {
   queue.push(
     function(task) {
       getVizJson(function(d) {
+        console.log("Map data: " + mapData);
         mapData = d;
         task.done();
       });
@@ -112,6 +115,7 @@ var job = new CronJob('*/20 * * * *', function() {
         task.done();
       } else {
         insertMapId(mapData, function() {
+          console.log("New map stored!: " + mapData);
           task.done();
         })
       }
@@ -127,6 +131,7 @@ var job = new CronJob('*/20 * * * *', function() {
         task.done();
       } else {
         postTweet(mapData, function() {
+          console.log("Tweet posted!: " + mapData);
           task.done();
         });
       }
@@ -142,6 +147,7 @@ var job = new CronJob('*/20 * * * *', function() {
         task.done();
       } else {
         changeBackground(mapData, function() {
+          console.log("Banner changed!: " + mapData);
           task.done();
         });
       }
@@ -150,7 +156,7 @@ var job = new CronJob('*/20 * * * *', function() {
     6000
   );
 
-});
+}, null, true, 'America/Los_Angeles');
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.static(__dirname + '/public'))
