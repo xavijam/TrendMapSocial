@@ -11,6 +11,8 @@ var app = express();
 var CronJob = require('cron').CronJob;
 var WORKERS = process.env.WEB_CONCURRENCY || 1;
 var throng = require('throng');
+var Bitly = require('bitly');
+var bitly = new Bitly(config['Bitly'].username, config['Bitly'].api_key);
 
 
 function start() {
@@ -32,6 +34,9 @@ function start() {
 
   function getVizJson(callback) {
     cartodbReadClient.query("SELECT url FROM {table} ORDER BY count DESC LIMIT 1", { table: 'top_viz' }, function(err, data){
+      if (err) {
+        throw JSON.stringify(err);
+      }
       if (data.rows && data.rows.length === 1) {
         var url = data.rows[0].url;
         var data = /https:\/\/(.+)\.cartodb.com\/api\/v2\/viz\/(.+)\/viz.json/.exec(url);
@@ -42,6 +47,9 @@ function start() {
 
   function getMapInfo(mapData, callback) {
     request(mapData.url, function(err, res, body){
+      if (err) {
+        throw JSON.stringify(err);
+      }
       var data = JSON.parse(body);
       callback && callback(data.title);
     });
@@ -49,6 +57,9 @@ function start() {
 
   function mapReported(data, callback) {
     cartodbWriteClient.query("SELECT CASE WHEN exists (SELECT true FROM {table} WHERE map_id='{id}') THEN 'true' ELSE 'false' END", { table: 'trendy_maps_list', id: data.id }, function(err, data){
+      if (err) {
+        throw JSON.stringify(err);
+      }
       var reported = data && data.rows && data.rows[0].case === 'true';
       callback && callback(reported);
     });
@@ -56,15 +67,37 @@ function start() {
 
   function insertMapId(data, callback) {
     cartodbWriteClient.query("INSERT INTO {table} (map_id) VALUES ('{id}');", { table: 'trendy_maps_list', id: data.id }, function(err, data){
+      if (err) {
+        throw JSON.stringify(err);
+      }
       callback && callback();
     });
   }
 
   function postTweet(mapData, callback) {
-    var msg = mapData.title + ' by ' + mapData.username + ' - http://' + mapData.username + '.cartodb.com/viz/' + mapData.id + '/public_map';
+    var url = 'http://' + mapData.username + '.cartodb.com/viz/' + mapData.id + '/public_map';
+    var title = mapData.title;
+    if (title.length > 100) {
+      title = title.substr(0, 97) + '...'
+    }
     
-    twitterClient.post('statuses/update', { status: msg },  function(error, tweet, response){
-      callback && callback();
+    var msg = title + ' by ' + mapData.username + ' - ';
+
+    bitly.shorten(url, function(err, response) {
+      if (err) {
+        throw JSON.stringify(err);
+      }
+
+      var short_url = response.data.url;
+      msg = msg + short_url;
+
+      twitterClient.post('statuses/update', { status: msg },  function(error, tweet, response){
+        if (error) {
+          throw JSON.stringify(error);
+        } else {
+          callback && callback();  
+        }
+      });
     });
   }
 
@@ -91,7 +124,7 @@ function start() {
   var job = new CronJob(config['Cron'], function() {
     console.log("Checking new map...");
 
-    var queue = seqqueue.createQueue(10000);
+    var queue = seqqueue.createQueue(12000);
     var mapData = {};
 
     // Get trend map!
@@ -145,7 +178,7 @@ function start() {
         }
       },
       function() {},
-      1000
+      3000
     );
 
     // Send tweet if it was not reported

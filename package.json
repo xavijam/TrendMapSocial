@@ -26,6 +26,7 @@
     "Map of the moment"
   ],
   "dependencies": {
+    "bitly": "^2.0.0",
     "cartodb": "0.2.1",
     "config-heroku": "^0.1.1-a",
     "cron": "^1.0.9",

@@ -1,5 +1,9 @@
 {
   "Cron": "* * * * *",
+  "Bitly": {
+    "username": "",
+    "api_key": ""
+  },
   "CartoDB": {
     "read_username": "",
     "write_username": "",
