@@ -13,7 +13,8 @@ var WORKERS = process.env.WEB_CONCURRENCY || 1;
 var throng = require('throng');
 
 
-function start() {   
+function start() {
+  console.log("test");
   var twitterClient = new Twitter({
     consumer_key: config['Twitter'].api_key,
     consumer_secret: config['Twitter'].api_secret,
