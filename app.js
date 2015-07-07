@@ -8,8 +8,7 @@ var seqqueue = require('seq-queue');
 var request = require('request');
 var express = require('express')
 var app = express();
-var INTERVAL = 1200000;
-
+var CronJob = require('cron').CronJob;
  
 var twitterClient = new Twitter({
   consumer_key: config['Twitter'].api_key,
@@ -78,7 +77,7 @@ function changeBackground(mapData, callback) {
 }
 
 
-setInterval(function() {
+var job = new CronJob('*/20 * * * *', function() {
   var queue = seqqueue.createQueue(10000);
   var mapData = {};
 
@@ -151,9 +150,7 @@ setInterval(function() {
     6000
   );
 
-}, INTERVAL);
-
-
+});
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.static(__dirname + '/public'))
