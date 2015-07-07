@@ -9,6 +9,8 @@ var request = require('request');
 var express = require('express')
 var app = express();
 var CronJob = require('cron').CronJob;
+
+console.log("hello0");
  
 var twitterClient = new Twitter({
   consumer_key: config['Twitter'].api_key,
@@ -25,6 +27,8 @@ var cartodbWriteClient = new CartoDB({
 var cartodbReadClient = new CartoDB({
   user: config['CartoDB'].read_username
 });
+
+console.log("hello2");
 
 function getVizJson(callback) {
   cartodbReadClient.query("SELECT url FROM {table} ORDER BY count DESC LIMIT 1", { table: 'top_viz' }, function(err, data){
@@ -75,6 +79,8 @@ function changeBackground(mapData, callback) {
     });
   });
 }
+
+console.log("hello");
 
 
 var job = new CronJob('*/20 * * * *', function() {
@@ -157,6 +163,8 @@ var job = new CronJob('*/20 * * * *', function() {
   );
 
 }, null, true, 'America/Los_Angeles');
+
+console.log("hello1");
 
 app.set('port', (process.env.PORT || 5000))
 app.use(express.static(__dirname + '/public'))
