@@ -14,7 +14,6 @@ var throng = require('throng');
 
 
 function start() {
-  console.log("test");
   var twitterClient = new Twitter({
     consumer_key: config['Twitter'].api_key,
     consumer_secret: config['Twitter'].api_secret,
