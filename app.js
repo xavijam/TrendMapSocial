@@ -106,7 +106,7 @@ function start() {
     var download = function(uri, filename, callbk){
       request.head(uri, function(err, res, body){
         var r = request(uri).pipe(fs.createWriteStream(filename));
-        r.on('close', callbk && callbk());
+        r.on('close', callbk);
       });
     };
 
