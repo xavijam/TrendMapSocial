@@ -198,14 +198,10 @@ var job = new CronJob(config['Cron'], function() {
   // Change background
   queue.push(
     function(task) {
-      if (mapData.reported) {
+      changeBackground(mapData, function() {
+        console.log("Banner changed!: " + JSON.stringify(mapData));
         task.done();
-      } else {
-        changeBackground(mapData, function() {
-          console.log("Banner changed!: " + JSON.stringify(mapData));
-          task.done();
-        });
-      }
+      });
     },
     function() {},
     5000
