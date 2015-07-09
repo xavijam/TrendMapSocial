@@ -102,7 +102,7 @@ function changeBackground(mapData, callback) {
 
   var download = function(uri, filename, callbk){
     request.head(uri, function(err, res, body){
-      var r = request(uri).pipe(fs.createWriteStream(filename, { mode: 0777 }));
+      var r = request(uri).pipe(fs.createWriteStream(filename));
       r.on('close', callbk);
     });
   };
