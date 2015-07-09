@@ -9,9 +9,6 @@
       "email": "carla@cartodb.com"
     }
   ],
-  "bin": {
-    "module-name": "./bin/module-name"
-  },
   "main": "app.js",
   "repository": {
     "type": "git",
