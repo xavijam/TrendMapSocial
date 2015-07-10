@@ -121,7 +121,7 @@ function changeBackground(mapData, callback) {
 var job = new CronJob(config['Cron'], function() {
   console.log("Checking new map...");
 
-  var queue = seqqueue.createQueue(120000);
+  var queue = seqqueue.createQueue(60000);
   var mapData = {};
 
   // Get trend map!
