@@ -121,7 +121,7 @@ function changeBackground(mapData, callback) {
 var job = new CronJob(config['Cron'], function() {
   console.log("Checking new map...");
 
-  var queue = seqqueue.createQueue(12000);
+  var queue = seqqueue.createQueue(120000);
   var mapData = {};
 
   // Get trend map!
@@ -134,7 +134,7 @@ var job = new CronJob(config['Cron'], function() {
       });
     }, 
     function() {}, 
-    1000
+    10000
   );
 
   // Get more map info!
@@ -147,7 +147,7 @@ var job = new CronJob(config['Cron'], function() {
       });
     }, 
     function() {}, 
-    1000
+    10000
   );
 
   // Already reported?
@@ -159,7 +159,7 @@ var job = new CronJob(config['Cron'], function() {
       });
     },
     function() {},
-    1000
+    10000
   );
 
   // Store it if it was not reported
@@ -176,7 +176,7 @@ var job = new CronJob(config['Cron'], function() {
       }
     },
     function() {},
-    3000
+    10000
   );
 
   // Send tweet if it was not reported
@@ -192,7 +192,7 @@ var job = new CronJob(config['Cron'], function() {
       }
     },
     function() {},
-    1000
+    10000
   );
 
   // Change background
@@ -204,7 +204,7 @@ var job = new CronJob(config['Cron'], function() {
       });
     },
     function() {},
-    5000
+    10000
   );
 
 }, null, true, 'America/Los_Angeles');
